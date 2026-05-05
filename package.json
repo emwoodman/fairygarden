@@ -5,7 +5,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/emmawoodman/fairygarden"
+    "url": "https://github.com/emwoodman/fairygarden"
   },
   "scripts": {
     "dev": "next dev",

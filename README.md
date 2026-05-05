@@ -2,7 +2,7 @@
 
 An open source garden planning app. Map your property, track plants and seeds, identify what's growing, plan your seasons, and get AI-powered gardening advice — all in one place.
 
-**fairygarden.app** · [github.com/emmawoodman/fairygarden](https://github.com/emmawoodman/fairygarden)
+**fairygarden.app** · [github.com/emwoodman/fairygarden](https://github.com/emwoodman/fairygarden)
 
 ## Features
 
@@ -30,7 +30,7 @@ An open source garden planning app. Map your property, track plants and seeds, i
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/emmawoodman/fairygarden.git
+git clone https://github.com/emwoodman/fairygarden.git
 cd fairygarden
 npm install
 ```
