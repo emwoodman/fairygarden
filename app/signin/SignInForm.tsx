@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
   return (
@@ -31,7 +33,51 @@ const INPUT_CLASS =
 
 export default function SignInForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const isSignUp = searchParams.get("mode") === "signup";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const supabase = createClient();
+
+  async function handleGoogleSignIn() {
+    setError("");
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "http://localhost:3001/auth/callback",
+      },
+    });
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
+
+    if (isSignUp) {
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess("Check your email to confirm your account.");
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        setError(error.message);
+      } else {
+        router.push("/dashboard");
+      }
+    }
+
+    setLoading(false);
+  }
 
   return (
     <div
@@ -53,6 +99,7 @@ export default function SignInForm() {
       {/* Google */}
       <button
         type="button"
+        onClick={handleGoogleSignIn}
         className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg border border-linen bg-parchment text-ink text-sm font-medium hover:bg-linen transition-colors"
       >
         <GoogleIcon />
@@ -68,8 +115,12 @@ export default function SignInForm() {
         <div className="flex-1 h-px bg-linen" />
       </div>
 
+      {/* Error / success messages */}
+      {error && <p className="text-xs text-rose">{error}</p>}
+      {success && <p className="text-xs text-olive">{success}</p>}
+
       {/* Form */}
-      <form className="space-y-3">
+      <form onSubmit={handleSubmit} className="space-y-3">
         {isSignUp && (
           <div className="space-y-1">
             <label htmlFor="name" className="block text-xs text-muted">
@@ -94,6 +145,8 @@ export default function SignInForm() {
             type="email"
             autoComplete="email"
             required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className={INPUT_CLASS}
           />
         </div>
@@ -107,13 +160,16 @@ export default function SignInForm() {
             type="password"
             autoComplete={isSignUp ? "new-password" : "current-password"}
             required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             className={INPUT_CLASS}
           />
         </div>
 
         <button
           type="submit"
-          className="w-full py-2.5 rounded-lg bg-olive text-parchment text-sm font-medium hover:opacity-90 transition-opacity"
+          disabled={loading}
+          className="w-full py-2.5 rounded-lg bg-olive text-parchment text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
         >
           {isSignUp ? "Create my garden" : "Sign in"}
         </button>
